@@ -24,8 +24,76 @@ from line_seg_intersect1 import *
 
 class TestLineSegmentIntersection(unittest.TestCase):
 
-    def testOne(self):
-        self.assertTrue(True)
+    def testEventQueueInsert(self):
+        bob = EventQueue()
+        bob.insert(8)
+        self.assertTrue(bob.contains(8))
+        bob.insert(4)
+        self.assertTrue(bob.contains(4))
+        self.assertTrue(bob.contains(8))
+        bob.insert(2)
+        self.assertTrue(bob.contains(2))
+        self.assertTrue(bob.contains(8))
 
+    def testEventQueueMin(self):
+        bob = EventQueue()
+        self.assertEqual(bob.min(), None)
+
+        bob.insert(3)
+        self.assertEqual(bob.min(), 3)
+
+        bob.insert(8)
+        self.assertEqual(bob.min(), 3)
+
+        bob.insert(2)
+        self.assertEqual(bob.min(), 2)
+
+    def testEventQueueSize(self):
+        bob = EventQueue()
+        self.assertEqual(bob.size(), 0)
+        bob.insert(2)
+        self.assertEqual(bob.size(), 1)
+        bob.insert(2)
+        self.assertEqual(bob.size(), 1)
+        bob.insert(3)
+        self.assertEqual(bob.size(), 2)
+        bob.insert(4)
+        self.assertEqual(bob.size(), 3)
+
+    def testEventQueueRemove(self):
+        bob = EventQueue()
+        self.assertEqual(bob.size(), 0)
+        bob.insert(2)
+        self.assertEqual(bob.size(), 1)
+        bob.insert(3)
+        self.assertEqual(bob.size(), 2)
+        self.assertTrue(bob.contains(3))
+        bob.remove(2)
+        self.assertEqual(bob.size(), 1)
+        self.assertFalse(bob.contains(2))
+        bob.insert(8)
+        bob.insert(7)
+        bob.insert(9)
+        self.assertEqual(bob.size(), 4)
+        bob.remove(8)
+        self.assertEqual(bob.size(), 3)
+
+    def testEventQueuePopLowest(self):
+        bob = EventQueue()
+        self.assertEqual(bob.size(), 0)
+        bob.insert(2)
+        self.assertEqual(bob.popLowest(), 2)
+        self.assertEqual(bob.size(), 0)
+        bob.insert(0)
+        bob.insert(2)
+        bob.insert(8)
+        bob.insert(-3)
+        self.assertEqual(bob.popLowest(), -3)
+        self.assertEqual(bob.popLowest(), 0)
+        self.assertEqual(bob.popLowest(), 2)
+        self.assertEqual(bob.popLowest(), 8)
+        self.assertEqual(bob.popLowest(), None)
+        self.assertEqual(bob.popLowest(), None)
+                
 if __name__=='__main__':
     unittest.main()
