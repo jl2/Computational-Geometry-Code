@@ -1,62 +1,26 @@
 #!/usr/bin/python3
 
+# line_seg_intersect1.py
+
+# Copyright (c) 2010, Jeremiah LaRocco jeremiah.larocco@gmail.com
+
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 import sys
 import random
 
-# from collections import namedtuple
-
-def dbg_print(st):
-    pass
-    # print(st)
-    # return
-    
-class Point2D(object):
-    def __init__(self, x, y):
-        self.coords = (x,y)
-
-    def __add__(self, pt2):
-        return Point2D(self.coords[0] + pt2.coords[0], self.coords[1] + pt2.coords[1])
-
-    def __str__(self):
-        return '({}, {})'.format(self.coords[0], self.coords[1])
-
-    def __repr__(self):
-        return str(self)
-
-    def __lt__(self, b):
-        if self.coords[0] != b.coords[0]: return self.coords[0] < b.coords[0]
-        return self.coords[1] < b.coords[1]
-
-    def __gt__(self, b):
-        if self.coords[0] != b.coords[0]: return self.coords[0] > b.coords[0]
-        return self.coords[1] > b.coords[1]
-
-    def __eq__(self, b):
-        return self.coords[0] == b.coords[0] and self.coords[1] == b.coords[1]
-
-    def __hash__(self):
-        return hash(self.coords)
-
-class LineSeg2D(object):
-    def __init__(self, pt1, pt2):
-        if pt1<pt2:
-            self.points = (pt1, pt2)
-        else:
-            self.points = (pt2, pt1)
-
-    def __eq__(self, b):
-        return b.points == self.points
-
-    def __str__(self):
-        return ('{{{} -> {}}}'.format(*self.points))
-
-    def __repr__(self):
-        return ('{{{} -> {}}}'.format(*self.points))
-
-    def __hash__(self):
-        return hash(self.points)
-
-# QNode = namedtuple('QNode', 'val, left, right')
+from svgimg.svgimg import Svg
+from geom.primitives import LineSeg2D, Point2D
 
 # EventQueue is a simple, non-balanced binary search tree
 # I probably didn't need to implement this
@@ -108,7 +72,10 @@ class EventQueue(object):
         rv = self.innerMin(self.pts)
         if rv is not None: self.remove(rv)
         return rv
-            
+
+    def empty(self):
+        return self.pts is None
+
     def size(self):
         def innerSize(node):
             if node is None: return 0
@@ -139,34 +106,23 @@ class EventQueue(object):
 
     def __str__(self):
         return str(self.pts)
+
     def __repr__(self):
         return repr(self.pts)
 
 def main(args):
     bob = EventQueue()
-    bob.insert(2)
-    print(bob)
-    bob.insert(4)
-    print(bob)
-    bob.insert(1)
-    print(bob)
-    bob.insert(7)
-    bob.insert(9)
-    bob.insert(9)
-    bob.insert(9)
-    print(bob)
-    bob.remove(9)
-    print(bob)
+    bob.insert(LineSeg2D(Point2D(0,0), Point2D(2,0)))
+    bob.insert(LineSeg2D(Point2D(0,-1), Point2D(2,0)))
+    bob.insert(LineSeg2D(Point2D(0,1), Point2D(2,1)))
+    bob.insert(LineSeg2D(Point2D(-1,-1), Point2D(2,1)))
 
-    bob.remove(9)
-    print(bob)
-    bob.remove(1)
-    print(bob)
-    bob.insert(3)
-    print(bob)
-    bob.remove(4)
-    print(bob)
-
+    img = Svg()
+    while not bob.empty():
+        ln = bob.popLowest()
+        img.add_line(ln)
+        # print(ln)
+    print(img)
     
 if __name__=='__main__':    
     main(sys.argv[1:])
