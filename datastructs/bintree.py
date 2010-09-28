@@ -194,7 +194,8 @@ class BinaryTree(object):
         return str(self)
 
     def removeNode(self, node):
-        if node is None or self.root is None: return
+        if node is None or self.root is None:
+            return
 
         # Both children empty - link from parent becomes None
         if node.left is None and node.right is None:
@@ -204,28 +205,41 @@ class BinaryTree(object):
                     node.parent.left = None
                 else:
                     node.parent.right = None
+            else:
+                self.root = None
             return
 
         # Node has only a left child - parent points to it
-        elif node.left and node.right is None:
+        elif node.left is not None and node.right is None:
             if node.parent:
                 self.numElems -= 1
                 if node.isLeftOfParent():
                     node.parent.left = node.left
+                    node.left.parent = node.parent
                 else:
                     node.parent.right = node.left
+                    node.left.parent = node.parent
+            else:
+                self.root = node.left
+                self.root.parent = None
             return
 
         # Node has only a right child - parent points to it
-        elif node.left is None and node.right:
+        elif node.left is None and node.right is not None:
             if node.parent:
                 self.numElems -= 1
                 if node.isLeftOfParent():
                     node.parent.left = node.right
+                    node.right.parent = node.parent
                 else:
                     node.parent.right = node.right
+                    node.right.parent = node.parent
+            else:
+                self.root = node.right
+                self.root.parent = None
             return
 
+        
         # Node has both right and left child, replace node.value with next 
         nn = node.next()
         node.value = nn.value
@@ -236,10 +250,12 @@ class BinaryTree(object):
         return self.root.leftMost()
 
     def popLowest(self):
-        if self.root is None: return None
-        rv = self.root.leftMost()
-        if rv: self.removeNode(rv)
-        return rv
+        rv = self.min()
+        if rv:
+            self.removeNode(rv)
+            return rv.value
+        else:
+            return None
 
 def main():
     bob = BinaryTree(int.__gt__)
