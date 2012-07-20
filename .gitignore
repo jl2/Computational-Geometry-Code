@@ -2,3 +2,5 @@
 *.kml
 *.svg
 *.gpx
+*.o
+*.ali
