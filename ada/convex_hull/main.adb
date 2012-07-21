@@ -10,14 +10,18 @@ with Ada.Containers;
 use Ada.Containers;
 
 with Ada.Text_IO;
-  
+with Ada.Strings.Unbounded.Text_IO;
+use Ada.Strings.Unbounded.Text_IO;
+with Ada.Strings.Unbounded;
+use Ada.Strings.Unbounded;
+
 procedure Main is
    package TIO renames Ada.Text_IO;
    package FIO is new TIO.Float_IO(Float);
    package NIO is new TIO.Integer_IO(Natural);
    
    package PSP is new Ada.Containers.Ordered_Sets(Point2D);
-   package PVP is new Ada.Containers.Vectors(Positive, Point2D);
+   package PVP renames PointVect;
    use PSP;
    use PVP;
    
@@ -93,7 +97,6 @@ procedure Main is
             declare
                Trm: Integer := Integer(Llower.Length)-1;
             begin
-               TIO.Put_Line("Removing " & Integer'Image(Trm));
                PVP.Delete(Llower, trm, 1);
             end;
          end loop;
@@ -106,35 +109,50 @@ procedure Main is
    procedure ShowPointVector(Pts : PVP.Vector) is
       PtCursor : PVP.Cursor := PVP.First(Pts);
    begin
-      TIO.Put_Line("Vector is:");
       while PtCursor /= PVP.No_Element loop
-         TIO.Put_Line("   " & Str(PVP.Element(PtCursor)));
          PtCursor := Next(PtCursor);
       end loop;
       TIO.New_Line;
    end ShowPointVector;
+   function Pt_Vect_From_Set(Pts: Psp.Set) return PVP.Vector is
+      PtCursor : PSP.Cursor;
+      Rval : PVP.Vector;
+   begin
+      Ptcursor := Psp.First(Pts);
+      while Ptcursor /= Psp.No_Element loop
+         PVP.Append(Rval, Element(Ptcursor));
+         Ptcursor := Psp.Next(Ptcursor);
+      end loop;
+      return Rval;
+   end Pt_Vect_From_Set;
    
    Pt1 : Point2D := (0.0, 0.0);
-   Pt2 : Point2D := (4.0, 4.0);
-   Pt3 : Point2D := (4.0, 0.0);
-   Pt4 : Point2D := (0.0, 4.0);
-   Pt5 : Point2D := (2.0, 2.0);
+   Pt2 : Point2D := (300.0, 300.0);
+   Pt3 : Point2D := (400.0, 0.0);
+   Pt4 : Point2D := (0.0, 400.0);
+   Pt5 : Point2D := (200.0, 200.0);
+   Pt6 : Point2d := (500.0, 200.0);
+   Pt7 : Point2d := (800.0, 200.0);
    Ls : LineSeg2D := (Pt1, Pt2);
+   
+   PtVect : Pvp.Vector;
    
    Pts: PSP.Set := PSP.Empty_Set;
    Hull : PVP.Vector;
-   
+   Svg : Svgimg;
+   Tmp : Unbounded_String;
 begin
    Pts.Insert(Pt1);
    Pts.Insert(Pt2);
    Pts.Insert(Pt3);
    Pts.Insert(Pt4);
    Pts.Insert(Pt5);
-   
+   Pts.Insert(Pt6);
+   Pts.Insert(Pt7);
    Hull := ConvexHull(Pts);
-   
-   TIO.Put_Line(Str(Ls));
-   TIO.Put_Line("Convex hull is:");
-   ShowPointVector(Hull);
+   PolygonVect.Append(Svg.Pgons, From_Pt_Vector(Hull));
+   Svg.Pts := Pt_Vect_From_Set(Pts);
+   Tmp := To_Svg(Svg);
+   Put_Line(Tmp);
 end Main;
 
