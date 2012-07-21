@@ -10,10 +10,19 @@ with Ada.Containers;
 use Ada.Containers;
 
 with Ada.Text_IO;
+
 with Ada.Strings.Unbounded.Text_IO;
 use Ada.Strings.Unbounded.Text_IO;
+
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
+
+with Ada.Numerics.Float_Random;
+use Ada.Numerics.Float_Random;
+with Ada.Numerics;
+use Ada.Numerics;
+with Ada.Numerics.Elementary_Functions;
+use Ada.Numerics.Elementary_Functions;
 
 procedure Main is
    package TIO renames Ada.Text_IO;
@@ -125,30 +134,28 @@ procedure Main is
       end loop;
       return Rval;
    end Pt_Vect_From_Set;
-   
-   Pt1 : Point2D := (0.0, 0.0);
-   Pt2 : Point2D := (300.0, 300.0);
-   Pt3 : Point2D := (400.0, 0.0);
-   Pt4 : Point2D := (0.0, 400.0);
-   Pt5 : Point2D := (200.0, 200.0);
-   Pt6 : Point2d := (500.0, 200.0);
-   Pt7 : Point2d := (800.0, 200.0);
-   Ls : LineSeg2D := (Pt1, Pt2);
-   
+   function Normal_Distribution(  Seed  : Generator;
+                                  Mu : Float := 1.0;
+                                  Sigma : Float := 0.5)  return Float is 
+   begin
+      return
+        Mu + (Sigma * Sqrt (-2.0 * Log (Random (Seed), 10.0)) * Cos (2.0 * Pi * Random (Seed)));
+   end Normal_Distribution;
+      
+   Seed         : Generator;
    PtVect : Pvp.Vector;
    
    Pts: PSP.Set := PSP.Empty_Set;
    Hull : PVP.Vector;
    Svg : Svgimg;
    Tmp : Unbounded_String;
+   Num_Pts : constant := 50;
 begin
-   Pts.Insert(Pt1);
-   Pts.Insert(Pt2);
-   Pts.Insert(Pt3);
-   Pts.Insert(Pt4);
-   Pts.Insert(Pt5);
-   Pts.Insert(Pt6);
-   Pts.Insert(Pt7);
+   Reset (Seed);
+   for I in 1..Num_Pts loop
+      Pts.Insert((Normal_Distribution(Seed, 500.0, 250.0),
+                  Normal_Distribution(Seed, 500.0, 250.0)));
+   end loop;
    Hull := ConvexHull(Pts);
    PolygonVect.Append(Svg.Pgons, From_Pt_Vector(Hull));
    Svg.Pts := Pt_Vect_From_Set(Pts);
