@@ -120,10 +120,10 @@ public:
         if (node == 0) return;
         
 
-        // It's the parent's left node
-        if (n < *(node->parent->_node)) {
-            node->parent->_node = node->parent->right->_
-        }
+        // // It's the parent's left node
+        // if (n < *(node->_parent->_node)) {
+        //     node->_parent->_node = node->_parent->right->_
+        // }
     }
 
     void insert(STNode *n) {
