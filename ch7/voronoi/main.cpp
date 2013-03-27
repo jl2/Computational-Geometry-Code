@@ -147,13 +147,32 @@ public:
         BinaryTree *tree = const_cast<BinaryTree*>(find(pt));
         if (tree == 0) return;
 
+        // Find the next item in the tree and replace tree with it, then delete it
         if (tree->_right) {
             BinaryTree *tmp = find_next(tree);
             if (tmp) {
+                /*
+                         A
+                        / \
+                       /   \
+                      /     \
+                     B       C
+                    / \     / \
+                   /   \   /   \
+                  D     E F     G
+                 */
                 std::swap(tree->_site, tmp->_site);
                 std::swap(tree->_left, tmp->_left);
                 std::swap(tree->_right, tmp->_right);
+
                 std::swap(tree->_parent, tmp->_parent);
+
+                if (tmp->_parent && tmp->_parent->_left == tree) {
+                    tmp->_parent->_left = 0;
+                } else if (tmp->_parent) {
+                    tmp->_parent->_right = 0;
+                }
+
                 tmp->_left = tmp->_right = 0;
                 if (tmp != this) {
                     delete tmp;
@@ -168,6 +187,13 @@ public:
                 std::swap(tree->_left, tmp->_left);
                 std::swap(tree->_right, tmp->_right);
                 std::swap(tree->_parent, tmp->_parent);
+
+
+                if (tmp->_parent && tmp->_parent->_left == tree) {
+                    tmp->_parent->_left = 0;
+                } else if (tmp->_parent) {
+                    tmp->_parent->_right = 0;
+                }
                 tmp->_left = tmp->_right = 0;
                 if (tmp != this) {
                     delete tmp;
@@ -327,17 +353,17 @@ int main() {
             omg.insert(p);
         }
     
-        std::cout << omg << "\n";
+        std::cout << omg << "{1,2,3,4,5}\n";
         omg.remove(1);
-        std::cout << omg << "\n";
-        omg.remove(3);
-        std::cout << omg << "\n";
+        std::cout << omg << "{2,3,4,5}\n";
         omg.remove(2);
-        std::cout << omg << "\n";
-        omg.remove(5);
-        std::cout << omg << "\n";
+        std::cout << omg << "{2,4,5}\n";
+        omg.remove(3);
+        std::cout << omg << "{4,5}\n";
         omg.remove(4);
-        std::cout << omg << "\n";
+        std::cout << omg << "{4}\n";
+        omg.remove(4);
+        std::cout << omg << "{} \n";
     }
 
 
