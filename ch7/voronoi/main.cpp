@@ -70,24 +70,27 @@ std::ostream &operator<<(std::ostream &out, const Event &e) {
     return out;
 }
 
-class BinaryTree;
-class BinaryTree {
+class TreeNode;
+class TreeNode {
 public:
-    BinaryTree() : _site(0), _event(0), _left(0), _right(0), _parent(0) {}
+    TreeNode() : _site(0), _event(0), _left(0), _right(0), _parent(0) {}
 
-    ~BinaryTree() {
+    ~TreeNode() {
         if (_left) {
             delete _left;
+            _left = 0;
         }
         if (_site) {
             delete _site;
+            _site = 0;
         }
         if (_right) {
             delete _right;
+            _right = 0;
         }
     }
 
-    const BinaryTree *find(const Point &pt) const {
+    const TreeNode *find(const Point &pt) const {
         if (_site == 0) return 0;
 
         if (_site != 0 && *_site == pt) {
@@ -102,16 +105,16 @@ public:
 
         return 0;
     }
-    BinaryTree *find_next(const BinaryTree *t) const {
+    TreeNode *find_next(const TreeNode *t) const {
         if (t) {
             if (t->_right) {
-                BinaryTree *tmp = t->_right;
+                TreeNode *tmp = t->_right;
                 while (tmp->_left) {
                     tmp = tmp->_left;
                 }
                 return tmp;
             } else if (t->_parent && t->_parent->_right != t) {
-                BinaryTree *tmp = t->_parent->_right;
+                TreeNode *tmp = t->_parent->_right;
                 while (tmp->_left) {
                     tmp = tmp->_left;
                 }
@@ -120,16 +123,16 @@ public:
         }
         return 0;
     }
-    BinaryTree *find_prev(const BinaryTree *t) const {
+    TreeNode *find_prev(const TreeNode *t) const {
         if (t) {
             if (t->_left) {
-                BinaryTree *tmp = t->_left;
+                TreeNode *tmp = t->_left;
                 while (tmp->_right) {
                     tmp = tmp->_right;
                 }
                 return tmp;
             } else if (t->_parent && t->_parent->_left != t) {
-                BinaryTree *tmp = t->_parent->_left;
+                TreeNode *tmp = t->_parent->_left;
                 while (tmp->_right) {
                     tmp = tmp->_right;
                 }
@@ -139,86 +142,219 @@ public:
         return 0;
     }
 
+    // void remove(const Point &pt) {
+    //     TreeNode *tree = const_cast<TreeNode*>(find(pt));
+    //     if (tree == 0) return;
+        
+    //     if (tree == this) {
+    //         // Deleting root!
+    //         if (_right) {
+    //             TreeNode *tmp = find_next(this);
+    //             if (tmp) {
+    //                 std::swap(_site, tmp->_site);
+    //                 std::swap(_left, tmp->_left);
+    //                 std::swap(_right, tmp->_right);
+    //                 std::swap(_parent, tmp->_parent);
+    //                 tmp->_left = tmp->_right = 0;
+    //                 delete tmp;
+    //             }
+    //         } else if (_left) {
+    //             TreeNode *tmp = find_prev(this);
+    //             if (tmp) {
+    //                 std::swap(_site, tmp->_site);
+    //                 std::swap(_left, tmp->_left);
+    //                 std::swap(_right, tmp->_right);
+    //                 std::swap(_parent, tmp->_parent);
+    //                 tmp->_left = tmp->_right = 0;
+    //                 delete tmp;
+    //             }
+    //         } else {
+    //             delete _site;
+    //             _site = 0;
+    //         }
+    //         return;
+    //     }
+
+    //     if (tree->_right) {
+    //         // Two children
+
+    //         // Find the next value and put it here
+    //         TreeNode *tmp = find_next(tree);
+    //         std::swap(tree->_site, tmp->_site);
+    //         tmp->remove(pt);
+    //     } else if (tree->_left) {
+    //         if (tree->_parent) {
+    //             if (tree->_parent->_left == tree) {
+    //                 // Deleting parent's left node
+    //                 // Make paren'ts left node point to tree's left
+    //                 tree->_parent->_left = tree->_left;
+    //                 if (tree->_left) {
+    //                     tree->_left->_parent = tree->_parent;
+    //                 }
+    //             } else if (tree->_parent->_right == tree) {
+    //                 // Deleting parent's right node
+    //                 // Make parent's right point to tree's left
+    //                 tree->_parent->_right = tree->_left;
+    //                 if (tree->_left) {
+    //                     tree->_left->_parent = tree->_parent;
+    //                 }
+    //             }
+    //             tree->_left = 0;
+    //             tree->_right = 0;
+    //             delete tree;
+    //         } else {
+    //             TreeNode *tmp = tree->_left;
+    //             tree->_site = tree->_left->_site;
+    //             tree->_left = tree->_left->_left;
+    //             tree->_right = tree->_left->_right;
+    //             delete tmp;
+    //         }
+    //     } else if (tree->_right) {
+    //         // Right tree only
+    //         if (tree->_parent) {
+    //             if (tree->_parent->_left == tree) {
+    //                 // Deleting parent's left node
+    //                 // Make parent's left node point to tree's right
+    //                 tree->_parent->_left = tree->_right;
+    //                 if (tree->_right) {
+    //                     tree->_right->_parent = tree->_parent;
+    //                 }
+    //             } else if (tree->_parent->_right == tree) {
+    //                 // Deleting parent's right node
+    //                 // Make parent's right node point to tree's right
+    //                 tree->_parent->_right = tree->_right;
+    //                 if (tree->_right) {
+    //                     tree->_right->_parent = tree->_parent;
+    //                 }
+    //             }
+    //             tree->_left = 0;
+    //             tree->_right = 0;
+    //             delete tree;
+    //         } else {
+    //             TreeNode *tmp = tree->_right;
+    //             tree->_site = tree->_right->_site;
+    //             tree->_left = tree->_right->_left;
+    //             tree->_right = tree->_right->_right;
+    //             delete tmp;
+    //         }
+    //     } else {
+    //         // No children - easy case
+    //         delete tree;
+    //         // if (tree->_site) {
+                
+    //         // }
+    //     }
+    // }
+
     void remove(const Point &pt) {
-        BinaryTree *tree = const_cast<BinaryTree*>(find(pt));
+        TreeNode *tree = const_cast<TreeNode*>(find(pt));
         if (tree == 0) return;
-        if (tree->_left && tree->_right) {
-            // Two children
-
-            // Find the next value and put it here
-            BinaryTree *tmp = find_next(tree);
-            std::swap(tree->_site, tmp->_site);
-            tmp->remove(pt);
-        } else if (tree->_left) {
-            // Left tree only
-            // The node's parent
-            /*
-
-                   A                          A
-                  / \                        / \
-                 /   \                      /   \
-                B     D   deleting B ->    C     D
-               /     /                          /
-              /     /                          /
-             C     E                          E
-
-             */
-
-            if (tree->_parent) {
-                if (tree->_parent->_left == tree) {
-                    // Deleting parent's left node
-                    // Make paren'ts left node point to tree's left
-                    tree->_parent->_left = tree->_left;
-                    tree->_left->_parent = tree->_parent;
-                } else if (tree->_parent->_right == tree) {
-                    // Deleting parent's right node
-                    // Make parent's right point to tree's left
-                    tree->_parent->_right = tree->_left;
-                    tree->_left->_parent = tree->_parent;
-                }
-                tree->_left = 0;
-                tree->_right = 0;
-                delete tree;
-            } else {
-                // deleting the root...
+        
+        if (tree->_right) {
+            TreeNode *tmp = find_next(tree);
+            if (tmp) {
+                std::swap(tree->_site, tmp->_site);
+                std::swap(tree->_left, tmp->_left);
+                std::swap(tree->_right, tmp->_right);
+                std::swap(tree->_parent, tmp->_parent);
+                tmp->_left = tmp->_right = 0;
+                delete tmp;
             }
-        } else if (tree->_right) {
-            // Right tree only
-            if (tree->_parent) {
-                if (tree->_parent->_left == tree) {
-                    // Deleting parent's left node
-                    // Make parent's left node point to tree's right
-                    tree->_parent->_left = tree->_right;
-                    tree->_left->_parent = tree->_parent;
-                } else if (tree->_parent->_right == tree) {
-                    // Deleting parent's right node
-                    // Make parent's right node point to tree's right
-                    tree->_parent->_right = tree->_right;
-                    tree->_left->_parent = tree->_parent;
-                }
-                tree->_left = 0;
-                tree->_right = 0;
-                delete tree;
-            } else {
-                // Deleting the root...
+        } else if (tree->_left) {
+            TreeNode *tmp = find_prev(tree);
+            if (tmp) {
+                std::swap(tree->_site, tmp->_site);
+                std::swap(tree->_left, tmp->_left);
+                std::swap(tree->_right, tmp->_right);
+                std::swap(tree->_parent, tmp->_parent);
+                tmp->_left = tmp->_right = 0;
+                delete tmp;
             }
         } else {
-            // No children - easy case
-                delete tree;
-            // if (tree->_site) {
-                
-            // }
+            delete _site;
+            _site = 0;
         }
     }
 
+    //     if (tree->_right) {
+    //         // Two children
+
+    //         // Find the next value and put it here
+    //         TreeNode *tmp = find_next(tree);
+    //         std::swap(tree->_site, tmp->_site);
+    //         tmp->remove(pt);
+    //     } else if (tree->_left) {
+    //         if (tree->_parent) {
+    //             if (tree->_parent->_left == tree) {
+    //                 // Deleting parent's left node
+    //                 // Make paren'ts left node point to tree's left
+    //                 tree->_parent->_left = tree->_left;
+    //                 if (tree->_left) {
+    //                     tree->_left->_parent = tree->_parent;
+    //                 }
+    //             } else if (tree->_parent->_right == tree) {
+    //                 // Deleting parent's right node
+    //                 // Make parent's right point to tree's left
+    //                 tree->_parent->_right = tree->_left;
+    //                 if (tree->_left) {
+    //                     tree->_left->_parent = tree->_parent;
+    //                 }
+    //             }
+    //             tree->_left = 0;
+    //             tree->_right = 0;
+    //             delete tree;
+    //         } else {
+    //             TreeNode *tmp = tree->_left;
+    //             tree->_site = tree->_left->_site;
+    //             tree->_left = tree->_left->_left;
+    //             tree->_right = tree->_left->_right;
+    //             delete tmp;
+    //         }
+    //     } else if (tree->_right) {
+    //         // Right tree only
+    //         if (tree->_parent) {
+    //             if (tree->_parent->_left == tree) {
+    //                 // Deleting parent's left node
+    //                 // Make parent's left node point to tree's right
+    //                 tree->_parent->_left = tree->_right;
+    //                 if (tree->_right) {
+    //                     tree->_right->_parent = tree->_parent;
+    //                 }
+    //             } else if (tree->_parent->_right == tree) {
+    //                 // Deleting parent's right node
+    //                 // Make parent's right node point to tree's right
+    //                 tree->_parent->_right = tree->_right;
+    //                 if (tree->_right) {
+    //                     tree->_right->_parent = tree->_parent;
+    //                 }
+    //             }
+    //             tree->_left = 0;
+    //             tree->_right = 0;
+    //             delete tree;
+    //         } else {
+    //             TreeNode *tmp = tree->_right;
+    //             tree->_site = tree->_right->_site;
+    //             tree->_left = tree->_right->_left;
+    //             tree->_right = tree->_right->_right;
+    //             delete tmp;
+    //         }
+    //     } else {
+    //         // No children - easy case
+    //         delete tree;
+    //         // if (tree->_site) {
+                
+    //         // }
+    //     }
+    // }
+
     void setEvent(const Point &pt, Event *ev) {
-        BinaryTree *node = insert(pt);
+        TreeNode *node = insert(pt);
         if (node && 0==node->_event) {
             node->_event = ev;
         }
     }
 
-    BinaryTree *insert(const Point &pt) {
+    TreeNode *insert(const Point &pt) {
 
         // Tree is empty
         if (_site == 0) {
@@ -230,20 +366,20 @@ public:
 
         if (pt<*_site) {
             if (0 == _left) {
-                _left = new BinaryTree;
+                _left = new TreeNode;
                 _left->_parent = this;
             }
             return _left->insert(pt);
         } else {
             if (0==_right) {
-                _right = new BinaryTree;
+                _right = new TreeNode;
                 _right->_parent = this;
             }
             return _right->insert(pt);
         }
     }
 
-    bool empty() {
+    bool isEmpty() {
         return _site == 0 && _left == 0 && _right == 0;
     }
 
@@ -262,15 +398,69 @@ public:
 private:
     Point *_site;
     Event *_event;
-    BinaryTree *_left, *_right, *_parent;
+    TreeNode *_left, *_right, *_parent;
 };
 
-std::ostream &operator<<(std::ostream &out, const BinaryTree &e) {
+std::ostream &operator<<(std::ostream &out, const TreeNode &e) {
     out << "{";
     e.inorder(out);
     out << "}";
     return out;
 }
+
+// class BinaryTree {
+// public:
+//     BinaryTree() :_root(0) {}
+//     ~BinaryTree() {
+//         if (_root) {
+//             delete _root;
+//             _root = 0;
+//         }
+//     }
+//     void insert(const Point &pt) {
+//         if (_root == 0) {
+//             _root = new TreeNode;
+//         }
+//         _root->insert(pt);
+//     }
+//     void setEvent(const Point &pt, Event *ev) {
+//         if (_root == 0) {
+//             _root = new TreeNode;
+//         }
+//         _root->setEvent(pt, ev);
+//     }
+//     const TreeNode *find(const Point &pt) {
+//         if (_root == 0) {
+//             return 0;
+//         }
+//         return _root->find(pt);
+//     }
+//     bool isEmpty() {
+//         return _root == 0;
+//     }
+//     void remove(const Point &pt) {
+//         if (_root == 0) return;
+//         if (_root->site() == pt) {
+//             // Deleting the root!
+//             if (_root->_
+//         }
+//     }
+//     void inorder(std::ostream &out) const {
+//         if (_root) {
+//             _root->inorder(out);
+//         }
+//     }
+// private:
+//     TreeNode *_root;
+// };
+
+// std::ostream &operator<<(std::ostream &out, const BinaryTree &e) {
+//     out << "{";
+//     e.inorder(out);
+//     out << "}";
+//     return out;
+// }
+
 
 typedef std::set<Point> point_set;
 typedef std::vector<Edge> edge_list;
@@ -281,7 +471,7 @@ void voronoi(const point_set &pts, edge_list &output) {
     
     event_queue eq;
     output.clear();
-    BinaryTree stat;
+    TreeNode stat;
 
     // step 1
     for (const auto &e : pts) {
@@ -297,7 +487,7 @@ void voronoi(const point_set &pts, edge_list &output) {
         if (site_event == thisEvent->eventType()) {
             // Handle site event
             std::cout << "Handling circle event at " << thisEvent->point() << "\n";
-            if (stat.empty()) {
+            if (stat.isEmpty()) {
                 std::cout << "Empty status, inserting point.\n";
                 stat.insert(thisEvent->point());
             } else {
@@ -315,15 +505,17 @@ void voronoi(const point_set &pts, edge_list &output) {
 int main() {
     point_set pts{{1,2}, {3,4}, {8,9}, {7,3}};
     edge_list edges;
-    BinaryTree omg;
+    TreeNode omg;
     for (const auto &p : pts) {
         omg.insert(p);
     }
     std::cout << omg << "\n";
     omg.remove(Point{3,4});
     std::cout << omg << "\n";
+    omg.remove(Point{1,2});
+    std::cout << omg << "\n";
     // omg.inorder(std::cout);
-    voronoi(pts, edges);
+    // voronoi(pts, edges);
 
     return 0;
 }
