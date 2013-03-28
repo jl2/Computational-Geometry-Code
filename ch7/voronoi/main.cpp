@@ -110,17 +110,24 @@ public:
     BinaryTree *find_next(const BinaryTree *t) const {
         if (t) {
             if (t->_right) {
+                // Go right one, then all the way to the left
                 BinaryTree *tmp = t->_right;
                 while (tmp->_left) {
                     tmp = tmp->_left;
                 }
                 return tmp;
-            } else if (t->_parent && t->_parent->_right != t) {
-                BinaryTree *tmp = t->_parent->_right;
-                while (tmp->_left) {
-                    tmp = tmp->_left;
+            } else if (t->_parent) {
+                BinaryTree *tmp = t->_parent;
+                if (t == t->_parent->_left) {
+                    return tmp;
                 }
-                return tmp;
+                while (tmp && tmp->_parent && tmp == tmp->_parent->_right) {
+                    tmp = tmp->_parent;
+                }
+                if (tmp->_parent) {
+                    return tmp->_parent;
+                }
+                return 0;
             }
         }
         return 0;
@@ -129,16 +136,30 @@ public:
         if (t) {
             if (t->_left) {
                 BinaryTree *tmp = t->_left;
-                while (tmp->_right) {
+                while (tmp && tmp->_right) {
                     tmp = tmp->_right;
                 }
                 return tmp;
-            } else if (t->_parent && t->_parent->_left != t) {
-                BinaryTree *tmp = t->_parent->_left;
-                while (tmp->_right) {
-                    tmp = tmp->_right;
+            } else if (t->_parent) {
+                BinaryTree *tmp = t->_parent;
+                if (tmp == t->_parent->_right) {
+                    return tmp;
                 }
-                return tmp;
+                // Go up while this is the left child,
+                while (tmp && tmp->_parent && tmp == tmp->_parent->_left) {
+                    tmp = tmp->_parent;
+                }
+                if (tmp->_parent) {
+                    return tmp->_parent;
+                }
+                return 0;
+                // whil
+                // && t->_parent->_left != t) {
+                // BinaryTree *tmp = t->_parent->_left;
+                // while (tmp && tmp->_right) {
+                //     tmp = tmp->_right;
+                // }
+                // return tmp;
             }
         }
         return 0;
@@ -227,7 +248,7 @@ public:
             _right->inorder(out);
         }
     }
-    
+    const BTType *site() const { return _site; }
 private:
     BTType *_site;
     Event *_event;
@@ -247,16 +268,23 @@ std::ostream &operator<<(std::ostream &out, const BinaryTree<int> &e) {
     return out;
 }
 
+
+bool event_pointer_compare(Event* a, Event*b) {
+    return *a<*b;
+}
+auto compareFunc = event_pointer_compare;
+
 typedef std::set<Point> point_set;
 typedef std::vector<Edge> edge_list;
-typedef std::priority_queue<Event*> event_queue;
+typedef std::priority_queue<Event*, std::vector<Event*>, decltype(compareFunc)> event_queue;
+typedef BinaryTree<Point> PtBTree;
 
 void voronoi(const point_set &pts, edge_list &output) {
     std::cout << "Computing voronoi diagram for points:\n";
     
-    event_queue eq;
+    event_queue eq(compareFunc);
     output.clear();
-    BinaryTree<Point> stat;
+    PtBTree stat;
 
     // step 1
     for (const auto &e : pts) {
@@ -271,24 +299,30 @@ void voronoi(const point_set &pts, edge_list &output) {
         std::cout << "Handling event: " << *thisEvent << "\n";
         if (site_event == thisEvent->eventType()) {
             // Handle site event
-            std::cout << "Handling circle event at " << thisEvent->point() << "\n";
+            std::cout << "Handling site event at " << thisEvent->point() << "\n";
             if (stat.isEmpty()) {
                 std::cout << "Empty status, inserting point.\n";
                 stat.insert(thisEvent->point());
             } else {
-                std::cout << "OMG!!\n";
+                PtBTree *tmp = stat.insert(thisEvent->point());
+                PtBTree *prev = stat.find_next(tmp);
+                if (prev) {
+                    std::cout << "Point above: " << *prev->site() << "\n";
+                } else {
+                    std::cout << "No point above!\n";
+                }
                 // Status::iterator it = stat.upper_bound(thisEvent->point());
             }
         } else {
             // Handle circle event
-            ;
+            std::cout << "Handling site event at " << thisEvent->point() << "\n";
         }
         delete thisEvent;
     }
 }
 
 int main() {
-    point_set pts{{1,2}, {3,4}, {8,9}, {7,3}};
+    point_set pts{{7,4},{1,2}, {3,4}, {8,9}, {7,3}};
     edge_list edges;
 
     {
@@ -351,6 +385,6 @@ int main() {
         omg.remove(7);
         std::cout << omg << "{} \n";
     }
-
+    voronoi(pts, edges);
     return 0;
 }
