@@ -4,6 +4,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <exception>
 
 class Point {
 public:
@@ -147,59 +148,22 @@ public:
         BinaryTree *tree = const_cast<BinaryTree*>(find(pt));
         if (tree == 0) return;
 
-        // Find the next item in the tree and replace tree with it, then delete it
         if (tree->_right) {
+            // Find the next item in the tree and replace tree with it, then delete it
             BinaryTree *tmp = find_next(tree);
             if (tmp) {
-                /*
-                         A
-                        / \
-                       /   \
-                      /     \
-                     B       C
-                    / \     / \
-                   /   \   /   \
-                  D     E F     G
-                 */
                 std::swap(tree->_site, tmp->_site);
-                std::swap(tree->_left, tmp->_left);
-                std::swap(tree->_right, tmp->_right);
-
-                std::swap(tree->_parent, tmp->_parent);
-
-                if (tmp->_parent && tmp->_parent->_left == tree) {
-                    tmp->_parent->_left = 0;
-                } else if (tmp->_parent) {
-                    tmp->_parent->_right = 0;
-                }
-
-                tmp->_left = tmp->_right = 0;
-                if (tmp != this) {
-                    delete tmp;
-                }
+                tmp->remove(*tmp->_site);
             } else {
-                std::cout << "Damn.\n";
+                throw std::runtime_error("tree->_right was not null, but no next element found!");
             }
         } else if (tree->_left) {
             BinaryTree *tmp = find_prev(tree);
             if (tmp) {
                 std::swap(tree->_site, tmp->_site);
-                std::swap(tree->_left, tmp->_left);
-                std::swap(tree->_right, tmp->_right);
-                std::swap(tree->_parent, tmp->_parent);
-
-
-                if (tmp->_parent && tmp->_parent->_left == tree) {
-                    tmp->_parent->_left = 0;
-                } else if (tmp->_parent) {
-                    tmp->_parent->_right = 0;
-                }
-                tmp->_left = tmp->_right = 0;
-                if (tmp != this) {
-                    delete tmp;
-                }
+                tmp->remove(*tmp->_site);
             } else {
-                std::cout << "Damn.\n";
+                throw std::runtime_error("tree->_left was not null, but no previous element found!");
             }
         } else {
             if (tree->_parent) {
@@ -208,8 +172,6 @@ public:
                 } else if (tree->_parent->_right == tree) {
                     tree->_parent->_right = 0;
                 }
-            }
-            if (tree != this) {
                 delete tree;
             } else {
                 delete _site;
@@ -357,22 +319,38 @@ int main() {
         omg.remove(1);
         std::cout << omg << "{2,3,4,5}\n";
         omg.remove(2);
-        std::cout << omg << "{2,4,5}\n";
+        std::cout << omg << "{3,4,5}\n";
         omg.remove(3);
         std::cout << omg << "{4,5}\n";
         omg.remove(4);
-        std::cout << omg << "{4}\n";
-        omg.remove(4);
+        std::cout << omg << "{5}\n";
+        omg.remove(5);
         std::cout << omg << "{} \n";
     }
-
-
-    // std::cout << omg << "\n";
-    // omg.remove(Point{7,3});
-    // std::cout << omg << "\n";
-
-    // omg.inorder(std::cout);
-    // voronoi(pts, edges);
+    {
+        std::vector<int> vals{5,3,7,2,4,6,9};
+        BinaryTree<int> omg;
+    
+        for (const auto &p : vals) {
+            omg.insert(p);
+        }
+    
+        std::cout << omg << "{2345679}\n";
+        omg.remove(5);
+        std::cout << omg << "{234679}\n";
+        omg.remove(2);
+        std::cout << omg << "{34679}\n";
+        omg.remove(3);
+        std::cout << omg << "{4679}\n";
+        omg.remove(6);
+        std::cout << omg << "{479}\n";
+        omg.remove(9);
+        std::cout << omg << "{47} \n";
+        omg.remove(4);
+        std::cout << omg << "{7} \n";
+        omg.remove(7);
+        std::cout << omg << "{} \n";
+    }
 
     return 0;
 }
