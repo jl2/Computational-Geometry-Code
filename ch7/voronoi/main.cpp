@@ -4,7 +4,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
-#include <exception>
+#include <stdexcept>
 
 class Point {
 public:
@@ -153,13 +153,6 @@ public:
                     return tmp->_parent;
                 }
                 return 0;
-                // whil
-                // && t->_parent->_left != t) {
-                // BinaryTree *tmp = t->_parent->_left;
-                // while (tmp && tmp->_right) {
-                //     tmp = tmp->_right;
-                // }
-                // return tmp;
             }
         }
         return 0;
@@ -179,6 +172,7 @@ public:
                 throw std::runtime_error("tree->_right was not null, but no next element found!");
             }
         } else if (tree->_left) {
+            // No next item, so find previous item and replace tree with it, then delete it
             BinaryTree *tmp = find_prev(tree);
             if (tmp) {
                 std::swap(tree->_site, tmp->_site);
@@ -187,7 +181,9 @@ public:
                 throw std::runtime_error("tree->_left was not null, but no previous element found!");
             }
         } else {
+            // No children
             if (tree->_parent) {
+                // Delete a leaf by removing the parent node's link to it, then deleting the node
                 if (tree->_parent->_left == tree) {
                     tree->_parent->_left = 0;
                 } else if (tree->_parent->_right == tree) {
@@ -195,6 +191,7 @@ public:
                 }
                 delete tree;
             } else {
+                // Don't delete the root node, only its data
                 delete _site;
                 _site = 0;
             }
